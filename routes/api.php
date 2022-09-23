@@ -26,5 +26,6 @@ Route::controller(TodoController::class)->group(function(){
         Route::post('/', 'createTodo');
         Route::put('{id}', 'updateTodo');
         Route::delete('{id}', 'deleteTodo');
+        Route::get('status/{x}', 'getStatus');
     });
 });

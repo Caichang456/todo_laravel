@@ -4,18 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Repositories\Api\TodoRepository;
+use App\Models\Todo;
 
 class TodoController extends Controller
 {
-    protected $todo;
-
-    function __construct(){
-        $this->todo = new TodoRepository();
-    }
-
     public function getTodos(){
-        $todos = $this->todo->getTodos();
+        $todos = Todo::paginate(10);
 
         return response([
             'status' => true,
@@ -25,13 +19,13 @@ class TodoController extends Controller
     }
 
     public function getTodo($id){
-        $todo = $this->todo->getTodo($id);
+        $todo = Todo::find($id);
 
         return response([
             'status' => true,
             'message' => 'Return Single Todo',
             'data' => $todo
-        ]);   
+        ]);
     }
 
 
@@ -39,9 +33,10 @@ class TodoController extends Controller
         $todoValidated = $request->validate([
             'title' => 'required',
             'description' => 'required',
+            'status' => 'required'
         ]);
 
-        $todo = $this->todo->createTodo($todoValidated);
+        $todo = Todo::create($todoValidated);
 
         return response([
             'status' => true,
@@ -55,10 +50,11 @@ class TodoController extends Controller
         $todoValidated = $request->validate([
             'title' => 'required',
             'description' => 'required',
+            'status' => 'required'
         ]);
 
-        $this->todo->updateTodo($todoValidated, $id);
-        $todo = $this->todo->getTodo($id);
+        Todo::where('id', $id)->update($todoValidated);
+        $todo = Todo::find($id);
 
         return response([
             'status' => true,
@@ -68,11 +64,21 @@ class TodoController extends Controller
     }
 
     public function deleteTodo($id){
-        $this->todo->deleteTodo($id);
+        Todo::where('id', $id)->delete();
 
         return response([
             'status' => true,
             'message' => 'Your record is successfully deleted.'
+        ]);
+    }
+
+    public function getStatus($x){
+        $todo = Todo::where('status', $x)->paginate(10);
+
+        return response([
+            'status' => true,
+            'message' => 'Return Status Todo',
+            'data' => $todo
         ]);
     }
 }
