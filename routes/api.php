@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TodoController;
 
 /*
@@ -19,13 +20,16 @@ use App\Http\Controllers\Api\TodoController;
     return $request->user();
 });*/
 
-Route::controller(TodoController::class)->group(function(){
+Route::post('login', [UserController::class, 'login']);
+Route::post('register', [UserController::class, 'register']);
+
+Route::middleware('auth:sanctum')->group(function(){
     Route::prefix('todo')->group(function(){
-        Route::get('/', 'getTodos');
-        Route::get('{id}', 'getTodo');
-        Route::post('/', 'createTodo');
-        Route::put('{id}', 'updateTodo');
-        Route::delete('{id}', 'deleteTodo');
-        Route::get('status/{x}', 'getStatus');
+        Route::get('/', [TodoController::class, 'getTodos']);
+        Route::get('{id}', [TodoController::class, 'getTodo']);
+        Route::post('/', [TodoController::class, 'createTodo']);
+        Route::put('{id}', [TodoController::class, 'updateTodo']);
+        Route::delete('{id}', [TodoController::class, 'deleteTodo']);
+        Route::get('status/{x}', [TodoController::class, 'getStatus']);
     });
 });

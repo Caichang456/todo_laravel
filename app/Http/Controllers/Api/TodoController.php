@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Todo;
+use Illuminate\Support\Facades\Auth;
 
 class TodoController extends Controller
 {
     public function getTodos(){
-        $todos = Todo::paginate(10);
+        $todos = Todo::where('user_id', Auth::user()->id)->paginate(10);
 
         return response([
             'status' => true,
@@ -19,7 +20,7 @@ class TodoController extends Controller
     }
 
     public function getTodo($id){
-        $todo = Todo::find($id);
+        $todo = Todo::where('user_id', Auth::user()->id)->where('id', $id)->first();
 
         return response([
             'status' => true,
@@ -36,7 +37,12 @@ class TodoController extends Controller
             'status' => 'required'
         ]);
 
-        $todo = Todo::create($todoValidated);
+        $todo = Todo::create([
+            'title' => $todoValidated['title'],
+            'description' => $todoValidated['description'],
+            'status' => $todoValidated['status'],
+            'user_id' => Auth::user()->id
+        ]);
 
         return response([
             'status' => true,
@@ -53,7 +59,12 @@ class TodoController extends Controller
             'status' => 'required'
         ]);
 
-        Todo::where('id', $id)->update($todoValidated);
+        Todo::where('id', $id)->update([
+            'title' => $todoValidated['title'],
+            'description' => $todoValidated['description'],
+            'status' => $todoValidated['status'],
+            'user_id' => Auth::user()->id
+        ]);
         $todo = Todo::find($id);
 
         return response([
@@ -64,7 +75,7 @@ class TodoController extends Controller
     }
 
     public function deleteTodo($id){
-        Todo::where('id', $id)->delete();
+        Todo::where('id', $id)->where('user_id', Auth::user()->id)->delete();
 
         return response([
             'status' => true,
@@ -73,7 +84,7 @@ class TodoController extends Controller
     }
 
     public function getStatus($x){
-        $todo = Todo::where('status', $x)->paginate(10);
+        $todo = Todo::where('user_id', Auth::user()->id)->where('status', $x)->paginate(10);
 
         return response([
             'status' => true,
